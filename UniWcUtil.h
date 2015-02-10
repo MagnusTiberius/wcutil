@@ -1,5 +1,5 @@
 #pragma once
-
+#include "stdafx.h"
 #include <string>
 #include <clocale>
 #include <cstdlib>
@@ -15,10 +15,10 @@ public:
 	~UniWcUtil();
 
 public:
-	wchar_t*	generateUnicodeString(size_t len, size_t start, size_t end);
-	void		generate();
-	wchar_t*	getGroup(size_t n);
-	wchar_t**	getGroups(int n_args, ...);
+	wchar_t*	GenerateUnicodeString(size_t len, size_t start, size_t end);
+	void		Generate();
+	wchar_t*	GetGroup(size_t n);
+	wchar_t**	GetGroups(int n_args, ...);
 	void		AddRange(size_t start, size_t end, wchar_t* name);
 	wchar_t*	GetRange(size_t index);
 	wchar_t*	GetRangeName(size_t index);

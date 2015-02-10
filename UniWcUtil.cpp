@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "UniWcUtil.h"
 
 
@@ -252,6 +253,9 @@ UniWcUtil::UniWcUtil()
 
 UniWcUtil::~UniWcUtil()
 {
+	for (auto itm : ugroup) {
+		delete itm;
+	}
 	wcset1.clear();
 	for (auto itm : ugroup) {
 		free(itm);
@@ -271,7 +275,7 @@ wchar_t* UniWcUtil::GetRange(size_t index)
 	}
 	size_t start, end;
 	ugroup_t* g = ugroup.at(index);
-	wchar_t* s = generateUnicodeString(g->end - g->start, g->start, g->end);
+	wchar_t* s = GenerateUnicodeString(g->end - g->start, g->start, g->end);
 	return s;
 }
 
@@ -293,7 +297,7 @@ void UniWcUtil::AddRange(size_t start, size_t end, wchar_t* name)
 	ugroup.push_back(u);
 }
 
-wchar_t* UniWcUtil::generateUnicodeString(size_t len, size_t start, size_t end)
+wchar_t* UniWcUtil::GenerateUnicodeString(size_t len, size_t start, size_t end)
 {
 	wchar_t* str1 = new wchar_t[len + 1];
 
@@ -304,21 +308,21 @@ wchar_t* UniWcUtil::generateUnicodeString(size_t len, size_t start, size_t end)
 	return str1;
 }
 
-void UniWcUtil::generate()
+void UniWcUtil::Generate()
 {
 	const size_t bufsz = 0x0200;
 	wchar_t buffer[bufsz];
 	for (size_t j = 0x00; j <= 0xFF; j++) {
 		size_t start = (j << 8);
 		size_t end = (j << 8) | 0xFF;
-		wchar_t* subgroup = generateUnicodeString(0xFF, start, end);
+		wchar_t* subgroup = GenerateUnicodeString(0xFF, start, end);
 		wcset1.push_back(subgroup);
 		swprintf(buffer, bufsz, L"set%d", j);
 		wcsetkey1.push_back(buffer);
 	}
 }
 
-wchar_t* UniWcUtil::getGroup(size_t n)
+wchar_t* UniWcUtil::GetGroup(size_t n)
 {
 	if (n > wcset1.size()) {
 		return NULL;
@@ -327,7 +331,7 @@ wchar_t* UniWcUtil::getGroup(size_t n)
 	return ret;
 }
 
-wchar_t** UniWcUtil::getGroups(int n_args, ...)
+wchar_t** UniWcUtil::GetGroups(int n_args, ...)
 {
 	size_t elem;
 	va_list ap;
