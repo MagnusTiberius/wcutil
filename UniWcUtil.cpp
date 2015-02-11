@@ -1,8 +1,116 @@
-#include "stdafx.h"
 #include "UniWcUtil.h"
 
 
 UniWcUtil::UniWcUtil()
+{
+	InitList();
+}
+
+
+UniWcUtil::~UniWcUtil()
+{
+	for (auto itm : wcset1) {
+		delete itm;
+	}
+	wcset1.clear();
+	for (auto itm : ugroup) {
+		free(itm);
+	}
+	ugroup.clear();
+}
+
+size_t UniWcUtil::RangeSize()
+{
+	return ugroup.size();
+}
+
+wchar_t* UniWcUtil::GetRange(size_t index)
+{
+	if (index > ugroup.size()) {
+		return NULL;
+	}
+	size_t start, end;
+	ugroup_t* g = ugroup.at(index);
+	wchar_t* s = GenerateUnicodeString(g->end - g->start, g->start, g->end);
+	return s;
+}
+
+wchar_t* UniWcUtil::GetRangeName(size_t index)
+{
+	if (index > ugroup.size()) {
+		return NULL;
+	}
+	ugroup_t* g = ugroup.at(index);
+	return g->name;
+}
+
+void UniWcUtil::AddRange(size_t start, size_t end, wchar_t* name)
+{
+	ugroup_t* u = (ugroup_t*)malloc(sizeof(ugroup_t));
+	u->start = start;
+	u->end = end;
+	u->name = name;
+	ugroup.push_back(u);
+}
+
+wchar_t* UniWcUtil::GenerateUnicodeString(size_t len, size_t start, size_t end)
+{
+	wchar_t* str1 = new wchar_t[len + 1];
+
+	for (auto i = 0; i < len; i++) {
+		str1[i] = i + start;
+	}
+	str1[len] = L'\0';
+	return str1;
+}
+
+void UniWcUtil::Generate()
+{
+	const size_t bufsz = 0x0200;
+	wchar_t buffer[bufsz];
+	for (size_t j = 0x00; j <= 0xFF; j++) {
+		size_t start = (j << 8);
+		size_t end = (j << 8) | 0xFF;
+		wchar_t* subgroup = GenerateUnicodeString(0xFF, start, end);
+		wcset1.push_back(subgroup);
+		swprintf(buffer, bufsz, L"set%d", j);
+		wcsetkey1.push_back(buffer);
+	}
+}
+
+wchar_t* UniWcUtil::GetGroup(size_t n)
+{
+	if (n > wcset1.size()) {
+		return NULL;
+	}
+	auto ret = wcset1.at(n);
+	return ret;
+}
+
+wchar_t** UniWcUtil::GetGroups(int n_args, ...)
+{
+	size_t elem;
+	va_list ap;
+
+	if (n_args > wcset1.size()) {
+		return NULL;
+	}
+
+	wchar_t** arr = new wchar_t*[n_args];
+
+	va_start(ap, n_args);
+	for (int i = 0; i < n_args; i++) {
+		elem = va_arg(ap, size_t);
+		if (elem != NULL) {
+			arr[i] = wcset1.at(elem);
+		}
+	}
+	va_end(ap);
+
+	return arr;
+}
+
+void UniWcUtil::InitList()
 {
 	AddRange(0x0020, 0x007F, L"BasicLatin");
 	AddRange(0x0080, 0x00FF, L"Latin1Supplement");
@@ -248,108 +356,4 @@ UniWcUtil::UniWcUtil()
 	AddRange(0x1F700, 0x1F77F, L"AlchemicalSymbols");
 	AddRange(0x1F780, 0x1F7FF, L"GeometricShapesExtended");
 	AddRange(0x1F800, 0x1F8FF, L"SupplementalArrowsC");
-}
-
-
-UniWcUtil::~UniWcUtil()
-{
-	for (auto itm : ugroup) {
-		delete itm;
-	}
-	wcset1.clear();
-	for (auto itm : ugroup) {
-		free(itm);
-	}
-	ugroup.clear();
-}
-
-size_t UniWcUtil::RangeSize()
-{
-	return ugroup.size();
-}
-
-wchar_t* UniWcUtil::GetRange(size_t index)
-{
-	if (index > ugroup.size()) {
-		return NULL;
-	}
-	size_t start, end;
-	ugroup_t* g = ugroup.at(index);
-	wchar_t* s = GenerateUnicodeString(g->end - g->start, g->start, g->end);
-	return s;
-}
-
-wchar_t* UniWcUtil::GetRangeName(size_t index)
-{
-	if (index > ugroup.size()) {
-		return NULL;
-	}
-	ugroup_t* g = ugroup.at(index);
-	return g->name;
-}
-
-void UniWcUtil::AddRange(size_t start, size_t end, wchar_t* name)
-{
-	ugroup_t* u = (ugroup_t*)malloc(sizeof(ugroup_t));
-	u->start = start;
-	u->end = end;
-	u->name = name;
-	ugroup.push_back(u);
-}
-
-wchar_t* UniWcUtil::GenerateUnicodeString(size_t len, size_t start, size_t end)
-{
-	wchar_t* str1 = new wchar_t[len + 1];
-
-	for (auto i = 0; i < len; i++) {
-		str1[i] = i + start;
-	}
-	str1[len] = L'\0';
-	return str1;
-}
-
-void UniWcUtil::Generate()
-{
-	const size_t bufsz = 0x0200;
-	wchar_t buffer[bufsz];
-	for (size_t j = 0x00; j <= 0xFF; j++) {
-		size_t start = (j << 8);
-		size_t end = (j << 8) | 0xFF;
-		wchar_t* subgroup = GenerateUnicodeString(0xFF, start, end);
-		wcset1.push_back(subgroup);
-		swprintf(buffer, bufsz, L"set%d", j);
-		wcsetkey1.push_back(buffer);
-	}
-}
-
-wchar_t* UniWcUtil::GetGroup(size_t n)
-{
-	if (n > wcset1.size()) {
-		return NULL;
-	}
-	auto ret = wcset1.at(n);
-	return ret;
-}
-
-wchar_t** UniWcUtil::GetGroups(int n_args, ...)
-{
-	size_t elem;
-	va_list ap;
-
-	if (n_args > wcset1.size()) {
-		return NULL;
-	}
-
-	wchar_t** arr = new wchar_t*[n_args];
-
-	va_start(ap, n_args);
-	for (int i = 0; i < n_args; i++) {
-		elem = va_arg(ap, size_t);
-		if (elem != NULL) {
-			arr[i] = wcset1.at(elem);
-		}
-	}
-	va_end(ap);
-
-	return arr;
 }

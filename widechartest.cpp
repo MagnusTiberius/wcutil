@@ -7,8 +7,9 @@
 #include <cstdlib>
 #include <codecvt>
 #include <iostream>
-
 #include "UniWcUtil.h"
+
+#pragma comment(lib, "wcutil.lib")
 
 using std::string;
 

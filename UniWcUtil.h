@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+
 #include <string>
 #include <clocale>
 #include <cstdlib>
@@ -23,7 +23,9 @@ public:
 	wchar_t*	GetRange(size_t index);
 	wchar_t*	GetRangeName(size_t index);
 	size_t		RangeSize();
+
 private:
+	void InitList();
 	std::vector<wchar_t*> wcset1;
 	std::vector<wchar_t*> wcsetkey1;
 
